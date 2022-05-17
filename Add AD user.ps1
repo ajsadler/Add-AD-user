@@ -29,7 +29,7 @@ do
     if ($newFullName.Length -eq 2) {continue}
     "Invalid name entry. (Firstname Surname)"
     WriteLog "Invalid name entered: '$newName'"
-} while ($null -eq $newFullName -or $newFullName.Length -ne 2)
+}   while ($null -eq $newFullName -or $newFullName.Length -ne 2)
 
 # Converts the name data to all necessary formats
 $newFirstName = $textInfo.ToTitleCase($newFullName[0].ToLower())
@@ -50,10 +50,10 @@ $newDisplayName = $newSurname + ", " + $newFirstName
 # If one is found, then it loops with sequential numbers until a gap is found
 $error.Clear()
 $i = 1
-do {
-    try {Get-ADUser $newUsername}
-    catch { $i--
-            "Duplicate user(s) found: $i" }
+do
+{   try {Get-ADUser $newUsername}
+    catch {$i--
+        "Duplicate user(s) found: $i"}
     if ($error) {continue}
     else {
         $i++
@@ -62,7 +62,7 @@ do {
         $newEmail = $newFirstNameLower + "." + $newSurnameLower + $i + "@igdoors.co.uk"
         $newDisplayName = $newSurname + ", " + $newFirstName + $i
         }
-} while (!$error)
+}   while (!$error)
 
 WriteLog "New user: $newFirstName $newSurname"
 WriteLog "Display name: $newDisplayName"
@@ -79,7 +79,7 @@ do
     if ($newStartDateSplit[0].Length -eq 2 -and $newStartDateSplit[1].Length -eq 2 -and $newStartDateSplit[2].Length -eq 4) {continue}
     "Invalid date format."
     WriteLog "Invalid date format entered: '$newStartDate'"
-    } while ($newStartDateSplit[0].Length -ne 2 -or $newStartDateSplit[1].Length -ne 2 -or $newStartDateSplit[2].Length -ne 4)
+}   while ($newStartDateSplit[0].Length -ne 2 -or $newStartDateSplit[1].Length -ne 2 -or $newStartDateSplit[2].Length -ne 4)
 $newStartDateDD = $newStartDate.Substring(0,2)
 $newStartDateMM = $newStartDate.Substring(3,2)
 $newStartDateYYYY = $newStartDate.Substring(6,4)
@@ -106,15 +106,14 @@ WriteLog "Start date: $newStartDateDD/$newStartDateMM/$newStartDateYYYY"
 $newDepartment = @()
 $addDepartment = "y"
 do
-{ if ($addDepartment -eq "n") {continue}
+{   if ($addDepartment -eq "n") {continue}
     $newDepartment += Read-Host "New user's department"
     if ($newDepartment.Contains(""))
-    {
-        $addDepartment = "n";
+    {   $addDepartment = "n";
         $newDepartment = $newDepartment -ne ""
         continue
     }
-} while ($addDepartment -eq "y")
+}   while ($addDepartment -eq "y")
 $newDepartmentList = $newDepartment -join ', '
 $newDepartmentList = $textInfo.ToTitleCase($newDepartmentList.ToLower())
 
@@ -177,7 +176,8 @@ do
 {   $confirmDetails = (Read-Host "Are the details correct: Y/N?").Substring(0,1).ToLower()
     if ($confirmDetails -eq "y" -or $confirmDetails -eq "n") {continue}
     "`nInvalid Y/N entry."
-} while ($confirmDetails -ne "y" -and $confirmDetails -ne "n")
+}   while ($confirmDetails -ne "y" -and $confirmDetails -ne "n")
+
 if ($confirmDetails -eq "n")
 {
     "`nPlease exit and restart.`a"
@@ -211,7 +211,7 @@ Set-ADUser -Identity "$newUsername" -Replace @{
 'mailNickname' = "$newUsername";
 'mail' = "$newEmail";
 'UserPrincipalName' = "$newEmail";
-'targetAddress' = "SMTP:$newFirstNameLower.$newSurnameLower.igdoors.co.uk@hgrouponline.mail.onmicrosoft.com";
+'targetAddress' = "smtp:$newFirstNameLower.$newSurnameLower.igdoors.co.uk@hgrouponline.mail.onmicrosoft.com";
 'Department' = "$newDepartmentPrimary";
 'extensionAttribute1' = "Included";
 'extensionAttribute15' = "AADSync";
@@ -231,7 +231,7 @@ Add-ADGroupMember -Identity zzx-gbblw-m365-ConditionalAccess-allowTrustedLocatio
 
 # Added to zPermissions for each department added
 foreach ($department in $newDepartmentAD)
-{ Add-ADGroupMember -Identity zzd-gbblw-igdoors-$department-rw -Members $newUsername }
+{Add-ADGroupMember -Identity zzd-gbblw-igdoors-$department-rw -Members $newUsername}
 
 # Displays the new details before closing
 Get-ADUser -Identity $newUsername -Properties *
